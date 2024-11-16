@@ -198,6 +198,9 @@ export async function POST(request: Request) {
 }
 ```
 
+> **A$AP**; Use the code `IBROHIMXAIMLAPI` for 1 week FREE Access [Let's get started, bruh!](https://aimlapi.com/?via=ibrohim) 
+
+
 Next, enter the `text-to-speech` folder and create a new file called `route.ts`. Put the following code in the file:
 
 ```typescript
@@ -258,6 +261,9 @@ export async function POST(request: Request) {
   }
 }
 ```
+
+> **A$AP**; Use the code `IBROHIMXAIMLAPI` for 1 week FREE Access [Let's get started, bruh!](https://aimlapi.com/?via=ibrohim) 
+
 
 Don't hurry up! We should temporarily save the `audio file` to play it later. So, the easiest way is thro using `IndexedDB`. Let's create a new file called `utils/indexdb.js` in the `text-to-speech` folder:
 
@@ -942,7 +948,7 @@ Install the package:
 npm install react-toastify
 ```
 
-Add the following functions to the `PrepAlly.tsx` file:
+Create separate functions for each type of notification:
 
 ```typescript
 const showSuccessToast = (msg:string) => {
@@ -999,7 +1005,7 @@ And include in `return` statement:
 </>
 ```
 
-Here's how the notification card looks like:
+Here's how the notification card looks like. It's on the top-right corner of the screen:
 
 ![Notification card](public/app/notification_card.png)
 
@@ -1406,7 +1412,11 @@ Okey, let's work on `RecordButton`.
 // ...rest of the code
 ```
 
+Here's real demo, how it works: [PrepAlly](https://youtu.be/wyp8tRTLLfQ?si=_YlCvJxtUVzhykXk)
+
+
 Chat logs will be displayed in a fixed window on the right side of the screen. The window will contain a list of chat messages. It's kinda transcript of the whole conversation. Super useful to back to the conversation and see what was discussed if you missed something.
+
 
 ```typescript
 const [isShowingChatLogs, setIsShowingChatLogs] = useState(false);
@@ -1710,6 +1720,8 @@ const prepareChatMessages = (userMessage:string) => {
 };
 ```
 
+On `user?.fullName` we are getting it from the `Clerk` user object.
+
 Next, prepare very initial prompt for speech. When user enters the page, the AI assistant will greet the user and provide some information about the problem.
 
 ```typescript
@@ -1916,7 +1928,7 @@ Finally, click on `Schedule` button. That's it! 🎉
 
 ![ProductHunt](public/ph/done.png)
 
-Here's the link to the project: [PrepAlly on ProductHunt](https://www.producthunt.com/posts/prepally). How about yours? Let me know in the comments below.
+Here's the link to the project: [PrepAlly on ProductHunt](https://www.producthunt.com/posts/prepally). How about yours? Let me know in the comments below or [message me topmate.io/abdibrokhim](https://topmate.io/abdibrokhim/1291434/pay). Really, I would love to see your project. 🐐
 
 #### X (formerly Twitter)
 
@@ -1938,7 +1950,7 @@ Also, upload the video of the demo directly. (ps; don't put link to YouTube, ins
 
 ![Twitter](public/x/x_post.png)
 
-Here's the link to the post: [PrepAlly on X](https://x.com/abdibrokhim/status/1857897470577062165). How about yours? Let me know in the comments below.
+Here's the link to the post: [PrepAlly on X](https://x.com/abdibrokhim/status/1857897470577062165). How about yours? Let me know in the comments below or [message me topmate.io/abdibrokhim](https://topmate.io/abdibrokhim/1291434/pay). 
 
 ## Conclusion
 
@@ -1946,7 +1958,9 @@ In this tutorial, we built an AI-powered coding interview platform using Next.js
 
 We also learned how to promote the project on ProductHunt and X to reach a wider audience. At least, we hyped it up! 🐐
 
-I hope you enjoyed building this project and learned something new. If you have any questions or feedback, feel free to leave a comment below. I would love to hear from you.
+> ps; now you are pretty much ready to apply YC. Here's the link on how to apply to YC: [How to Apply to Y Combinator](https://youtu.be/wCyJrv9a2Ic?si=ce6folSL1o5K88tB)
+
+I hope you enjoyed building this project and learned something new. If you have any questions or feedback, feel free to [message me topmate.io/abdibrokhim](https://topmate.io/abdibrokhim/1291434/pay). I would love to hear from you. 🫠
 
 ---
 
@@ -1975,17 +1989,17 @@ on Dev Community:
 * [Building a Chrome Extension from Scratch with AI/ML API, Deepgram Aura, and IndexedDB Integration](https://dev.to/abdibrokhim/building-a-chrome-extension-from-scratch-with-aiml-api-deepgram-aura-and-indexeddb-integration-25hd)
 
 
-### Try what you have built so far:
+### Try what you have built so far (if you followed along 😂):
 * [HumanAIze AI text tool](https://humanaize.vercel.app/), it's absolutely FREE! 🎉 and The smartest AI humanizer.
 * [AI Sticker Maker Platform](https://ai-sticker-maker.vercel.app/) on [HuggingFace Spaces](https://huggingface.co/spaces/AI-ML-API-tutorials/ai-sticker-maker) 🚀. You can print them and make your life funnier.
 * [Chrome Extension](https://github.com/TechWithAbee/Building-a-Chrome-Extension-from-Scratch-with-AI-ML-API-Deepgram-Aura-and-IndexDB-Integration) to Read Aloud the text on the webpage.
 * Not a subscriber? Download Loom Videos for free using [lovido.lol](https://lovido.lol/). [Open Source](https://github.com/abdibrokhim/loom-dl-web/), put a star on it! ⭐️
 
 
-### GPTs:
+### GPTs (i did during the hackathons):
 * [StoryAI](https://chatgpt.com/g/g-PRa3ZXK36-story-ai), Where Climate Data Meets Conversation 🌍
 * [EcoShopAI](https://chatgpt.com/g/g-rTTibE8p9-ecoshop-ai), I help you to make eco-friendly purchasing decisions with minimal environmental impact
-[AI Sticker Maker](https://chatgpt.com/g/g-mtFtfproh-ai-sticker-maker), I will create really cutesy stickers for you 💜
+* [AI Sticker Maker](https://chatgpt.com/g/g-mtFtfproh-ai-sticker-maker), I will create really cutesy stickers for you 💜
 
 ---
 
