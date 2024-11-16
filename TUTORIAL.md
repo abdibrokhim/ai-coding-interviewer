@@ -109,7 +109,7 @@ Before we get started, make sure you have the following installed on your machin
 * [AI/ML API Key](https://aimlapi.com/?via=ibrohim). Here's a tutorial on [How to get API Key from AI/ML API](https://medium.com/@abdibrokhim/how-to-get-api-key-from-ai-ml-api-225a69d0bb25)
 * [Clerk Auth Account](https://clerk.com/). Here's a brief tutorial on: [How to create account on Clerk and setup new project](https://medium.com/@abdibrokhim/how-to-create-account-on-clerk-and-setup-a-new-project-532be3545642)
 * [Vercel Account](https://vercel.com/). Here's a brief tutorial on: [How to create account on Vercel](https://medium.com/@abdibrokhim/how-to-deploy-apps-to-vercel-with-ease-93fa0d0bb687)
-* [Judge0 API Key](https://rapidapi.com/judge0-official/api/judge0-ce); i will show you how to get it later. (upd: jump to [Judge0 from RapidAPI](#judge0-from-rapidapi))
+* [Judge0 API Key](https://rapidapi.com/judge0-official/api/judge0-ce); i will show you how to get it later. (upd: jump to [Judge0 from RapidAPI](#code-compilation))
 
 ## Getting Started
 
