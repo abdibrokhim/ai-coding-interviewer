@@ -12,7 +12,6 @@ import React, { useEffect, useState, useRef } from "react";
 import CodeEditorWindow from "./CodeEditorWindow";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
-// import { classnames } from "../utils/general";
 import { languageOptions } from "../constants/languageOptions";
 import { problemsList } from "../constants/problemsList";
 
@@ -23,23 +22,18 @@ import "react-toastify/dist/ReactToastify.css";
 import defineTheme from "../lib/defineTheme";
 import useKeyPress from "../hooks/useKeyPress";
 import OutputWindow from "./OutputWindow";
-// import CustomInput from "./CustomInput";
 import OutputDetails from "./OutputDetails";
 import ThemeDropdown from "./ThemeDropdown";
 import LanguagesDropdown from "./LanguagesDropdown";
 import ProblemDropdown from "./problems/ProblemDropdown";
-// import Icons from "../icons";
 import RunButton from "./RunButton";
-import RecordButton from "./RecordButton";
 
-import { saveAndPlayAudio, openVoiceDatabase } from '../api/text-to-speech/utils/indexdb.js';
+import { saveAndPlayAudio } from '../api/text-to-speech/utils/indexdb.js';
 
-import { faClosedCaptioning, faMicrophone, faRotateRight, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faClosedCaptioning, faMicrophone, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import loader from '../lib/loader';
-import myImage from '../assets/me.jpeg';
 import weiImage from '../assets/wei.jpeg';
-import myGif from '../assets/circle.gif';
 import './styles.css';
 import { useUser } from '@clerk/nextjs';
 import { classnames } from "../utils/general";
@@ -58,9 +52,7 @@ export default function Landing() {
   const [showExecutionLog, setShowExecutionLog] = useState(false);
   const [executionLogHeight, setExecutionLogHeight] = useState(200);
   const [resizing, setResizing] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { isLoaded, isSignedIn, user } = useUser();
-  const [playInitialPrompt, setPlayInitialPrompt] = useState(false);
+  const { user } = useUser();
   const [isShowingChatLogs, setIsShowingChatLogs] = useState(false);
   interface MessageLog {
     role: string;
@@ -370,7 +362,7 @@ export default function Landing() {
     const paraphrasedProblemStatement = await generateReply(messages);
     console.log('Paraphrased Problem Statement:', paraphrasedProblemStatement);
 
-    const initialPromptSpeech = `Welcome, ${currentUser}! I'm Wei B Tan, and I'm currently a Senior Software Engineer at Snapchat. Today, we'll be working on the ${currentProblem} problem, where ${paraphrasedProblemStatement}. Please take a minute to read the problem and respond when you're ready to work on it.`;
+    const initialPromptSpeech = `Welcome, ${currentUser}! I'm ${interviewerName}, and I'm currently a Senior Software Engineer at Snapchat. Today, we'll be working on the ${currentProblem} problem, where ${paraphrasedProblemStatement}. Please take a minute to read the problem and respond when you're ready to work on it.`;
     console.log('Initial Prompt Speech:', initialPromptSpeech);
     
     // update chat logs
@@ -559,7 +551,6 @@ export default function Landing() {
     console.log('Handling AI response...');
     showInfoToast('Processing...');
     try {
-      setIsProcessing(true);
       // Show some loading state if needed
       console.log('Current user query:', userQuery);
       console.log('Current chat logs: ', chatLogs);
@@ -586,7 +577,6 @@ export default function Landing() {
       console.error('Error handling AI response:', error);
       showErrorToast('An error occurred while processing your request.', 2000);
     } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -765,28 +755,28 @@ export default function Landing() {
           </div>
         </div>
       </div>
-    <div className="relative">
-      {showExecutionLog && (
-        <>
-          <div
-            className={`fixed left-0 right-0 bottom-0 bg-white border-t border-gray-300 overflow-y-auto z-50 ${
-              resizing ? "pointer-events-none" : ""
-            }`}
-            style={{ height: `${executionLogHeight + 1}px`, cursor: "row-resize", }}
-            onMouseDown={handleMouseDown}
-          ></div>
-          <div
-            className="fixed left-0 right-0 bottom-0 bg-white border-gray-300 overflow-y-auto z-50"
-            style={{ height: `${executionLogHeight}px`, maxHeight: "500px", minHeight: "100px", }}
-          >
-            <div className="">
-              <OutputWindow outputDetails={outputDetails} />
-              {outputDetails && <OutputDetails outputDetails={outputDetails} />}
+      <div className="relative">
+        {showExecutionLog && (
+          <>
+            <div
+              className={`fixed left-0 right-0 bottom-0 bg-white border-t border-gray-300 overflow-y-auto z-50 ${
+                resizing ? "pointer-events-none" : ""
+              }`}
+              style={{ height: `${executionLogHeight + 1}px`, cursor: "row-resize", }}
+              onMouseDown={handleMouseDown}
+            ></div>
+            <div
+              className="fixed left-0 right-0 bottom-0 bg-white border-gray-300 overflow-y-auto z-50"
+              style={{ height: `${executionLogHeight}px`, maxHeight: "500px", minHeight: "100px", }}
+            >
+              <div className="">
+                <OutputWindow outputDetails={outputDetails} />
+                {outputDetails && <OutputDetails outputDetails={outputDetails} />}
+              </div>
             </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
     </>
   );
 };

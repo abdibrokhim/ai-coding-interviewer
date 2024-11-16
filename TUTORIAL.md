@@ -342,6 +342,7 @@ Above stuff (source code) demonstrates how to organize API routes in a project, 
    - The `/api/text-to-speech` endpoint transforms these responses into human-like audio.
    - The IndexedDB utility ensures the audio files are efficiently managed, enabling smooth playback without persisting unnecessary data.
 
+If you want more tutorials with `IndexedDB` and `text-to-speech` stuff. Kindly check this tutorial: [Building a Chrome Extension from Scratch with AI/ML API, Deepgram Aura, and IndexedDB Integration](https://dev.to/abdibrokhim/building-a-chrome-extension-from-scratch-with-aiml-api-deepgram-aura-and-indexeddb-integration-25hd)
 
 Now, let's move on to the next step.
 
@@ -483,7 +484,8 @@ Let's setup the necessary components for the PrepAlly interface. We'll create th
 3. [Coding Problems List](#coding-problems-list)
 4. [Code Execution Button and Log](#code-execution-button-and-log)
 5. [FontAwesome Icons](#fontawesome-icons)
-6. [Record Button](#record-button)
+6. [Assembling the PrepAlly Interface](#assembling-the-prepally-interface)
+
 
 
 #### Code Editor
@@ -624,9 +626,9 @@ export const problemsList = [
 `
 # Given an array length 1 or more of ints, return the difference between the largest and smallest values in the array. 
 
-# biggest_diff([10, 3, 5, 6]) → 7
-# biggest_diff([7, 2, 10, 9]) → 8
-# biggest_diff([2, 10, 7, 2]) → 8
+# biggest_diff([10, 3, 5, 6]) => 7
+# biggest_diff([7, 2, 10, 9]) => 8
+# biggest_diff([2, 10, 7, 2]) => 8
 
 def biggest_diff(nums):
 `
@@ -640,9 +642,9 @@ def biggest_diff(nums):
 `
 # Return True if the string "cat" and "dog" appear the same number of times in the given string.
 
-# cat_dog('catdog') → True
-# cat_dog('catcat') → False
-# cat_dog('1cat1cadodog') → True
+# cat_dog('catdog') => True
+# cat_dog('catcat') => False
+# cat_dog('1cat1cadodog') => True
 
 def cat_dog(s):
 `
@@ -657,9 +659,9 @@ def cat_dog(s):
 # Write a function to return the sum of the numbers in the given array 'nums', except ignore sections of numbers starting with a 7 and extending to the next 8 (every 7 will be followed by at least one 8). 
 # Return 0 for no numbers.
 
-# sum78([1, 2, 2]) → 5
-# sum78([1, 2, 2, 7, 99, 99, 8]) → 5
-# sum78([1, 1, 7, 8, 2]) → 4
+# sum78([1, 2, 2]) => 5
+# sum78([1, 2, 2, 7, 99, 99, 8]) => 5
+# sum78([1, 1, 7, 8, 2]) => 4
 
 def sum78(nums):
 `
@@ -886,35 +888,906 @@ npm i --save @fortawesome/free-brands-svg-icons
 npm i --save @fortawesome/react-fontawesome@latest
 ```
 
-#### Record Button
+Well, okey! Let's build the UI for the PrepAlly interface. 
 
-Let's add a record button to record the user's voice input. So, the user can feel the vibe of interviewing with a real human.
 
-```javascript
-// components/RecordButton.jsx
-import React from "react";
-import { classnames } from "../utils/general";
-import { faMicrophone } from '@fortawesome/free-solid-svg-icons';
+#### Assembling the PrepAlly Interface
+
+Create a new file called `PrepAlly.tsx` in the `pages` folder. And quickly import the necessary components:
+
+```typescript
+// pages/PrepAlly.tsx
+import Image from "next/image";
+import React, { useEffect, useState, useRef } from "react";
+import CodeEditorWindow from "./CodeEditorWindow";
+import axios from "axios";
+import ReactMarkdown from 'react-markdown';
+import { languageOptions } from "../constants/languageOptions";
+import { problemsList } from "../constants/problemsList";
+
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
+
+import defineTheme from "../lib/defineTheme";
+import useKeyPress from "../hooks/useKeyPress";
+import OutputWindow from "./OutputWindow";
+import OutputDetails from "./OutputDetails";
+import ThemeDropdown from "./ThemeDropdown";
+import LanguagesDropdown from "./LanguagesDropdown";
+import ProblemDropdown from "./problems/ProblemDropdown";
+import RunButton from "./RunButton";
+
+import { saveAndPlayAudio } from '../api/text-to-speech/utils/indexdb.js';
+
+import { faClosedCaptioning, faMicrophone, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-const RecordButton = ({ handleRecord, processing }) => {
-    return (
-        <button
-            onClick={handleRecord}
-            className={classnames("border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",)}
-        >
-            {processing ? "Recording... " : "Record "} <FontAwesomeIcon icon={faMicrophone} />
-      </button>
-    )
-}
-    
-export default RecordButton;
+import loader from '../lib/loader';
+import weiImage from '../assets/wei.jpeg';
+import './styles.css';
+import { useUser } from '@clerk/nextjs';
+import { classnames } from "../utils/general";
 ```
 
+Also don't forget to add `'use client'` to the top of the file. It's a new feature in Next.js that allows you to use the client-side API in your server-side code.
+
+#### Notifications
+
+Notifications are important. Let's create a few functions to show *success*, *error*, and *info* messages using `react-toastify`.
+
+Install the package:
+
+```bash
+npm install react-toastify
+```
+
+Add the following functions to the `PrepAlly.tsx` file:
+
+```typescript
+const showSuccessToast = (msg:string) => {
+    toast.success(msg || `Compiled Successfully!`, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+  const showErrorToast = (msg:string, timer:any) => {
+    toast.error(msg || `Something went wrong! Please try again.`, {
+      position: "top-right",
+      autoClose: timer ? timer : 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+  const showInfoToast = (msg:string) => {
+    toast.info(msg || `Processing your request...`, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+```
+
+And include in `return` statement:
+
+```typescript
+<>
+    <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+    />
+    // ...rest of the code
+</>
+```
+
+Here's how the notification card looks like:
+
+![Notification card](public/app/notification_card.png)
+
+#### Code Compilation
+
+To compile the code, we'll use the Judge0 as I mentioned earlier. We'll make a POST request to the Judge0 API to compile the code and get the output. But, we'll need the `API URL`, `host`, and `key`.
+
+Lemme show you how to get these keys:
+
+1. Go to [RapidAPI](https://rapidapi.com/).
+2. Create an account or login if you already have one.
+![RapidAPI Dashboard](public/rapidapi/api_dash.png)
+3. Search for `Judge0` and subscribe to the API.
+![RapidAPI Dashboard](public/rapidapi/api_search.png)
+4. Get the `API URL`, `host`, and `key`.
+![RapidAPI Dashboard](public/rapidapi/api_info.png)
+
+Quick info: on the left side you can see the `endpoints` and on the top `parameters/payloads/header/auth` etc. On the right side there is a `code snippet` that you can use to make a request. Before copying the code snippet, make sure to select the language (e.g., Python, Javascript, and etc.) you want to use and how (e.g., requests, axios, and etc.).
+
+> ps; in our case it's `axios` and `Javascript`.
+
+Initialize the state variables for the code editor:
+
+```typescript
+const [code, setCode] = useState(problemsList[0].value);
+const [outputDetails, setOutputDetails] = useState(null);
+const [processing, setProcessing] = useState(false);
+const [language, setLanguage] = useState(languageOptions[2]);
+```
+
+Add a function to handle the code execution. This function will compile the code using the RapidAPI and display the output in the output window. It also checks the API call limit and displays an error message if the limit is reached.
+
+```typescript
+// we will show this alert if the user selects the language that is not supported by the API
+const handleAgent = () => {
+alert("The agent is not available at the moment");
+};
+
+const handleCompile = () => {
+    // Check if the API call limit has been reached
+    const apiCallLimit = 2;
+    const apiCallLimitDuration = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const currentTimestamp = new Date().getTime();
+
+    if (localStorage.getItem("apiCallCount")) {
+        const apiCallCount = parseInt(localStorage.getItem("apiCallCount")!);
+        const firstApiCallTime = parseInt(localStorage.getItem("firstApiCallTime")!);
+        
+        if (apiCallCount >= apiCallLimit && currentTimestamp - firstApiCallTime < apiCallLimitDuration) {
+        // API call limit reached, show an error message
+        showErrorToast("API call limit reached. Please wait for 5 minutes before making more API calls.", 1000);
+        return;
+        }
+    } else {
+        // Set the initial values in local storage
+        localStorage.setItem("apiCallCount", "0");
+        localStorage.setItem("firstApiCallTime", currentTimestamp.toString());
+    }
+
+    // Increment the API call count in local storage
+    const apiCallCount = parseInt(localStorage.getItem("apiCallCount")!);
+    localStorage.setItem("apiCallCount", (apiCallCount + 1).toString());
+
+    // Proceed with the API call
+    setProcessing(true);
+    const formData = {
+        language_id: language.id,
+        // encode source code in base64
+        source_code: btoa(code),
+        stdin: btoa(customInput),
+    };
+    const options = {
+        method: "POST",
+        url: process.env.NEXT_PUBLIC_RAPID_API_URL,
+        params: { base64_encoded: "true", wait: 'false', fields: "*" },
+        headers: {
+        "content-type": "application/json",
+        "Content-Type": "application/json",
+        "X-RapidAPI-Host": process.env.NEXT_PUBLIC_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
+        },
+        data: formData,
+    };
+
+    axios
+        .request(options)
+        .then(function (response) {
+        console.log("res.data", response.data);
+        const token = response.data.token;
+        checkStatus(token);
+        })
+        .catch((err) => {
+        let error = err.response ? err.response.data : err;
+        // get error status
+        let status = err.response.status;
+        console.log("status", status);
+        if (status === 429) {
+            console.log("too many requests", status);
+
+            showErrorToast(
+            `Quota of 50 requests exceeded for the Day!`,
+            10000
+            );
+        }
+        setProcessing(false);
+        console.log("catch block...", error);
+        });
+    };
+```
+
+Check the status of the code compilation. If the code is still processing, the function will check the status again after a delay. If the code compilation is successful, the output details will be displayed in the output window.
+
+```typescript
+const checkStatus = async (token:string) => {
+    const options = {
+      method: "GET",
+      url: process.env.NEXT_PUBLIC_RAPID_API_URL + "/" + token,
+      params: { base64_encoded: "true", fields: "*" },
+      headers: {
+        "X-RapidAPI-Host": process.env.NEXT_PUBLIC_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
+      },
+    };
+    try {
+      let response = await axios.request(options);
+      let statusId = response.data.status?.id;
+
+      // Processed - we have a result
+      if (statusId === 1 || statusId === 2) {
+        // still processing
+        setTimeout(() => {
+          checkStatus(token);
+        }, 2000);
+        return;
+      } else {
+        setProcessing(false);
+        setOutputDetails(response.data);
+        showSuccessToast(`Compiled Successfully!`);
+        console.log("response.data", response.data);
+        return;
+      }
+    } catch (err) {
+      console.log("err", err);
+      setProcessing(false);
+      showErrorToast(`Something went wrong! Please try again.`, 1000);
+    }
+  };
+```
+
+Update `return` statement to include the components; `CodeEditorWindow`, `LanguagesDropdown`, `ProblemDropdown`, `RunButton`, and `OutputWindow`.
+
+```typescript
+// ...rest of the code
+<div className="flex flex-col sm:flex-row">
+    <div className="px-4 py-2">
+        <ProblemDropdown onSelectChange={onProblemChange} />
+    </div>
+    <div className="px-4 py-2">
+        <LanguagesDropdown onSelectChange={onLanguageChange} />
+    </div>
+    <div className="px-4 py-2">
+        <RunButton handleCompile={language.id !== 43 ? handleCompile : handleAgent} code={code} processing={processing}/>
+    </div>
+    <div className="px-4 py-2">
+        <button className="border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0" onClick={toggleExecutionLog}>
+        Execution log {<FontAwesomeIcon icon={faTerminal} />}
+        </button>
+    </div>
+</div>
+```
+
+Problem dropdown feature:
+
+![Problem dropdown](public/app/problem_dropdown.png)
+
+Language dropdown feature:
+
+![Language dropdown](public/app/language_dropdown.png)
 
 
+Add the `CodeEditorWindow` component to the `return` statement:
+
+```typescript
+// ...rest of the code
+<div className="flex flex-col h-full">
+    <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 items-start px-4 py-4">
+        <div className="flex flex-row w-full h-full justify-start items-end">
+        <CodeEditorWindow
+            code={code}
+            onChange={onChange}
+            language={language?.value}
+        />
+        {/* interviewer window */}
+        <div className="flex flex-col items-center justify-center text-center w-[20%] mb-[50px]">
+            <div className="flex flex-col text-center items-center justify-center gap-2 noselect">
+            {/* Circular GIF background with image on top */}
+            <div className="relative w-32 h-32 rounded-full overflow-hidden shadow-lg">
+                {/* GIF background */}
+                <div className="absolute inset-0 w-[142%] h-[142%] mt-[-26px] ml-[-25px] bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(/circle.gif)` }}>
+                </div>
+                {/* Image layered on top */}
+                <Image
+                priority={true}
+                src={weiImage}
+                width={80}
+                height={80}
+                alt="Interviewer"
+                className="relative w-24 h-24 rounded-full shadow-md nodrag top-4 left-4"
+                title="Interviewer"
+                />
+            </div>
+            <p className="text-lg font-bold">{interviewerName}</p>
+            <p>{getInterviewState()}</p>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+// ...rest of the code
+```
+
+Code editor window:
+
+![Code editor window](public/app/code_editor_window.png)
+
+AI Coding Interviewer:
+
+![AI Coding Interviewer](public/app/ai_coding_interviewer.png)
 
 
+Implement rest of the functions:
+    
+
+```typescript
+const [selectedProblem, setSelectedProblem] = useState(problemsList[0]);
+
+const onLanguageChange = (sl:any) => {
+    console.log("selected Option...", sl);
+    setLanguage(sl);
+  };
+
+  const onProblemChange = async (selectedProblem:any) => {
+    console.log("selected Option...", selectedProblem);
+    setSelectedProblem(selectedProblem);
+    setCode(selectedProblem.value);
+      setInterviewerState({
+        isThinking: true,
+        isSpeaking: false,
+        isListening: false,
+      });
+    await prepareInitialPromptForSpeech();
+  };
+```
+
+```typescript
+const interviewerName = "Wei B Tan";
+
+const enterPress = useKeyPress("Enter");
+const ctrlPress = useKeyPress("Control");
+
+useEffect(() => {
+    if (enterPress && ctrlPress) {
+      console.log("enterPress", enterPress);
+      console.log("ctrlPress", ctrlPress);
+      handleCompile();
+    }
+  }, [ctrlPress, enterPress]);
+  const onChange = (action:any, data:any) => {
+    switch (action) {
+      case "code": {
+        setCode(data);
+        break;
+      }
+      default: {
+        console.warn("case not handled!", action, data);
+      }
+    }
+  };
+
+  const handleAgent = () => {
+    alert("The agent is not available at the moment");
+  };
+```
+
+There's also circled gif; `url(/circle.gif)` around the interviewer image. It gives a nice effect; kinds speaking etc.
+
+Define the `getInterviewState` function to display the current state of the interviewer:
+
+```typescript
+  const [interviewerState, setInterviewerState] = useState({
+    isThinking: false,
+    isSpeaking: false,
+    isListening: false,
+  });
+
+    // check interview state and return string
+  const getInterviewState = () => {
+    if (interviewerState.isThinking) {
+      return 'Thinking...';
+    } else if (interviewerState.isSpeaking) {
+      return 'Speaking...';
+    } else if (interviewerState.isListening) {
+      return 'Listening...';
+    } else {
+      return 'Idle...';
+    }
+  };
+```
+
+#### Execution Log
+
+Make execution log window resizable:
+
+```typescript
+const [executionLogHeight, setExecutionLogHeight] = useState(200);
+const [resizing, setResizing] = useState(false);
+
+useEffect(() => {
+    if (resizing) {
+      const handleMouseMove = (event: any) => {
+        const newHeight = window.innerHeight - event.clientY;
+        const clampedHeight = Math.max(100, Math.min(newHeight, 500));
+        setExecutionLogHeight(clampedHeight);
+      };
+      
+  
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+  
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [resizing]);
+
+  const toggleExecutionLog = () => {
+    setShowExecutionLog(!showExecutionLog);
+  };
+
+  const handleMouseDown = (event:any) => {
+    setResizing(true);
+  };
+  
+  const handleMouseUp = () => {
+    setResizing(false);
+  };
+```
+
+Now, add execution log and output details to the `return` statement:
+
+```typescript
+// ...rest of the code
+<div className="relative">
+    {showExecutionLog && (
+        <>
+        <div
+            className={`fixed left-0 right-0 bottom-0 bg-white border-t border-gray-300 overflow-y-auto z-50 ${
+            resizing ? "pointer-events-none" : ""
+            }`}
+            style={{ height: `${executionLogHeight + 1}px`, cursor: "row-resize", }}
+            onMouseDown={handleMouseDown}
+        ></div>
+        <div
+            className="fixed left-0 right-0 bottom-0 bg-white border-gray-300 overflow-y-auto z-50"
+            style={{ height: `${executionLogHeight}px`, maxHeight: "500px", minHeight: "100px", }}
+        >
+            <div className="">
+            <OutputWindow outputDetails={outputDetails} />
+            {outputDetails && <OutputDetails outputDetails={outputDetails} />}
+            </div>
+        </div>
+        </>
+    )}
+</div>
+// ...rest of the code
+```
+
+Execution log:
+
+![Execution log](public/app/execution_log.png)
+
+Okey, let's work on `RecordButton`.
+
+```typescript
+// ...rest of the code
+    <div className="px-4 py-2">
+        <button
+            onClick={()=>{handleRecordButton()}}
+            className={classnames("border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",)}
+        >
+            {isRecording ? "Stop " : "Record " } {isRecording ? loader() : <FontAwesomeIcon icon={faMicrophone} />}
+        </button>
+    </div>
+    <div className="px-4 py-2">
+        <button
+            onClick={()=>{setIsShowingChatLogs(!isShowingChatLogs)}}
+            className={classnames("border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",)}
+        >
+            {isShowingChatLogs ? "Hide chat " : "Show chat "} <FontAwesomeIcon icon={faClosedCaptioning} />
+        </button>
+    </div>
+// ...rest of the code
+```
+
+Chat logs will be displayed in a fixed window on the right side of the screen. The window will contain a list of chat messages. It's kinda transcript of the whole conversation. Super useful to back to the conversation and see what was discussed if you missed something.
+
+```typescript
+const [isShowingChatLogs, setIsShowingChatLogs] = useState(false);
+
+{isShowingChatLogs && (
+    <div className="fixed top-16 right-10 w-[400px] h-[400px] bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="p-4 bg-gray-800 text-white text-center font-bold">Chat</div>
+        <div className="p-4 h-[calc(100%-60px)] overflow-y-auto space-y-3 bg-gray-100">
+        {chatLogs.map((log, index) => (
+            <div
+            key={index}
+            className={`p-3 rounded-lg text-sm ${
+                log.role === "user" ? "bg-gray-200 text-right" : "bg-gray-300 text-left"
+            }`}
+            >
+            <ReactMarkdown
+                components={{
+                a: ({ node, ...props }) => (
+                    <a className="text-blue-800 cursor-pointer" {...props} />
+                ),
+                }}
+            >
+                {log.content}
+            </ReactMarkdown>
+            </div>
+        ))}
+        </div>
+    </div>
+    )}
+```
+
+Here since AI answers comes in markdown format, we use `ReactMarkdown` to render the markdown content.
+
+Chat logs:
+
+![Chat logs](public/app/chat_logs.png)
+
+
+Then, bunch of `functions`, **functions**, *functions*...
+
+```typescript
+// State variables for speech recognition
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingComplete, setRecordingComplete] = useState(false);
+  const [ctranscript, setcTranscript] = useState('');
+
+  // Reference to store the SpeechRecognition instance
+  const recognitionRef = useRef<any>(null);
+  // Start Recording
+  const startRecording = async () => {
+    console.log('Starting recording...');
+    setIsRecording(true);
+    setRecordingComplete(false);
+    setcTranscript('');
+    // update state
+    setInterviewerState({
+      isThinking: false,
+      isSpeaking: false,
+      isListening: true,
+    });
+
+    recognitionRef.current = new window.webkitSpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.lang = 'en-US';
+
+    // Updated onresult handler
+    recognitionRef.current.onresult = (event:any) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      console.log('Final transcript: ', finalTranscript);
+      if (finalTranscript.length > 0) {
+        setcTranscript(finalTranscript);
+        addChatLogs({ role: 'user', content: finalTranscript });
+        const msg = `[Code]\n${code}\n\n [User Query & Response]\n${finalTranscript}`;
+        addMessageLogs({ role: 'user', content: msg });
+        handleAIResponse(msg);
+      } else {
+        alert('No speech detected. Please try again.');
+      }
+    };
+
+    recognitionRef.current.onerror = (event:any) => {
+      console.error('Speech recognition error', event.error);
+      alert('Speech recognition error: ' + event.error);
+      setIsRecording(false);
+    };
+
+    recognitionRef.current.onend = () => {
+      console.log('Speech recognition ended');
+      setIsRecording(false);
+      setInterviewerState({
+        isThinking: true,
+        isSpeaking: false,
+        isListening: false,
+      });
+    };
+    
+    recognitionRef.current.onspeechend = () => {
+      recognitionRef.current.stop();
+      recognitionRef.current.continuous = false;
+    };
+
+    recognitionRef.current.start();
+  };
+
+  // Stop Recording
+  const stopRecording = async () => {
+    if (recognitionRef.current) {
+      console.log("Stopping recording")
+      setIsRecording(false);
+      setInterviewerState({
+        isThinking: true,
+        isSpeaking: false,
+        isListening: false,
+      });
+      recognitionRef.current.stop();
+    }
+  };
+
+  // Toggle Recording
+  const handleRecordButton = () => {
+    console.log("handleRecordButton...");
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+```
+
+I was really brief on the speech recognition part. If you want to learn more about it. Kindly check this tutorial: [Building a Chrome Extension from Scratch with AI/ML API, Deepgram Aura, and IndexedDB Integration](https://dev.to/abdibrokhim/building-a-chrome-extension-from-scratch-with-aiml-api-deepgram-aura-and-indexeddb-integration-25hd)
+
+
+The important stuff: After `'use client'` declare a global interface to add the webkitSpeechRecognition property to the Window object. This is necessary to avoid TypeScript errors when using the `webkitSpeechRecognition` API. It will be used to enable voice input in the code editor.
+
+```typescript
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+  }
+}
+```
+
+Tha main part of the code is the `handleAIResponse` function. This function will handle the response from the AI model. It will prepare the chat messages, send the user query to the GPT-4o model, and convert the AI reply to speech. It's kinds wrapper function for the AI model.
+
+```typescript
+// ================================================
+  // cookin ai stuff...
+  // Update handleAIResponse function
+  const handleAIResponse = async (userQuery:string) => {
+    console.log('Handling AI response...');
+    showInfoToast('Processing...');
+    try {
+      // Show some loading state if needed
+      console.log('Current user query:', userQuery);
+      console.log('Current chat logs: ', chatLogs);
+      console.log('Current message logs: ', messagesLogs);
+
+      const chatMessages = prepareChatMessages(userQuery);
+      console.log('Prepared chat messages:', chatMessages);
+
+      // Send the transcribed text to the GPT-4o model
+      const aiReply = await generateReply(chatMessages);
+
+      console.log('AI Reply:', aiReply);
+
+      // Update chat logs
+      addChatLogs({ role: 'assistant', content: aiReply });
+
+      // Update messages logs
+      addMessageLogs({ role: 'assistant', content: aiReply });
+
+      // Convert the AI reply to speech and play it
+      await textToSpeech(aiReply);
+      console.log("I should be printed after textToSpeech, um..., shitt.");
+    } catch (error) {
+      console.error('Error handling AI response:', error);
+      showErrorToast('An error occurred while processing your request.', 2000);
+    } finally {
+    }
+  };
+```
+
+The `generateReply` function will send the user query to the GPT-4o model and return the AI reply.
+
+```typescript
+// send request to gpt-4o
+  // generate reply for user query
+  const generateReply = async (messages:any) => {
+    console.log('Generating reply...');
+    try {
+      // query-model
+      const response = await fetch('/api/query-gpt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      return data.message;
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while fetching the reply.');
+      return 'No response available';
+    }
+  };
+
+```
+
+The `textToSpeech` function will convert the AI reply to speech and play it.
+
+
+```typescript
+// when we get reply from gpt-4o model then we will convert it to voice and play it
+  // send request to elevenlabs api
+  // text to speech
+  const textToSpeech = async (text: string) => {
+    console.log('Converting text to speech...');
+    try {
+      const response = await fetch('/api/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const blob = await response.blob();
+
+      // Save to IndexedDB and play
+      setInterviewerState({
+        isThinking: false,
+        isSpeaking: true,
+        isListening: false,
+      });
+      await saveAndPlayAudio(blob);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while fetching the audio.');
+    } finally {
+      // startRecording();
+    }
+  };
+```
+
+Above if you were pretty much following along, you should see `prepareChatMessages` function. It's a helper function to prepare chat messages for the GPT-4o model. It will format the chat messages in a way that we can send them to the model for processing.
+
+**`This function is really important for AI Coding Interviewer.`** So, it will have a lot of information about the user, the problem, and the conversation between the user and the AI assistant. Otherwise, the AI model or `GPT-4o` will not be able to provide a meaningful response. Simply, it will be lost in the conversation.
+
+```typescript
+const prepareChatMessages = (userMessage:string) => {
+    const currentUser = user?.fullName || 'Dear';
+    const currentProblem = selectedProblem?.label || 'problem';
+    const currentProblemContent = selectedProblem?.value || 'problem content';
+    const tempInstr = `
+    ${systemPrompt}\n
+    You are talking to ${currentUser}.\n
+    Problem: ${currentProblem}\n
+    Here is Problem Statement: ${currentProblemContent}\n
+    Below given Conversation between you and ${currentUser}.\n
+    If user asked any question please, answer the question.\n
+    Provide feedback to their code.\n
+    `;
+    const newMessageLog = { role: 'user', content: userMessage };
+    const updatedMessagesLogs = [...messagesLogs, newMessageLog];
+
+    const messages = [
+      {
+          role: "system",
+          content: tempInstr
+      },
+
+      ...updatedMessagesLogs,
+    ];
+
+    return messages;
+};
+```
+
+Next, prepare very initial prompt for speech. When user enters the page, the AI assistant will greet the user and provide some information about the problem.
+
+```typescript
+const prepareInitialPromptForSpeech = async () => {
+    const currentUser = user?.firstName || 'Dear';
+    const currentProblem = selectedProblem?.label || 'problem';
+    const currentProblemContent = selectedProblem?.value || 'problem content';
+    const tempInstr = `
+    ${systemPrompt}
+    \nYou will be given a [New Problem] that you should paraphrase and return. Your paraphrased problem statement should be concise and informative. It should be a clear and accurate representation of the original problem statement. If you need example paraphrases, you can refer to the examples provided below. Below you can find the [example actual Problem Statement] and [example Paraphrased Problem Statement].\n
+    [example actual Problem Statement]\n${currentProblemContent}\n\n[example Paraphrased Problem Statement]\nWrite a function to calculate the sum of numbers in an array while ignoring sections starting with a 7 and ending with the next 8.
+    `;
+
+    const messages = [
+      {
+          role: "system",
+          content: tempInstr
+      },
+      {
+          role: "user",
+          content: currentProblemContent
+      },
+    ];
+
+    const paraphrasedProblemStatement = await generateReply(messages);
+    console.log('Paraphrased Problem Statement:', paraphrasedProblemStatement);
+
+    const initialPromptSpeech = `Welcome, ${currentUser}! I'm ${interviewerName}, and I'm currently a Senior Software Engineer at Snapchat. Today, we'll be working on the ${currentProblem} problem, where ${paraphrasedProblemStatement}. Please take a minute to read the problem and respond when you're ready to work on it.`;
+    console.log('Initial Prompt Speech:', initialPromptSpeech);
+    
+    // update chat logs
+    addChatLogs({ role: 'assistant', content: initialPromptSpeech });
+
+    // udpate messages logs
+    addMessageLogs({ role: 'assistant', content: initialPromptSpeech });
+
+    // Convert the initial prompt to speech and play it
+    await textToSpeech(initialPromptSpeech);
+  };
+```
+
+Function to add new log and trigger update
+
+```typescript
+  // Function to add new log and trigger update
+  const addChatLogs = (newMessage:any) => {
+    setChatLogs((prevLogs) => [...prevLogs, newMessage]);
+  };
+```
+
+```typescript
+const [userInteracted, setUserInteracted] = useState(false);
+
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setUserInteracted(true);
+      window.removeEventListener('click', handleUserInteraction);
+    };
+  
+    window.addEventListener('click', handleUserInteraction);
+  
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (userInteracted) {
+      setInterviewerState({
+        isThinking: true,
+        isSpeaking: false,
+        isListening: false,
+      });
+      prepareInitialPromptForSpeech();
+    }
+  }, [userInteracted]);
+```
+
+> When user enters the page for the first time.
 
 Let's add very simple yet nice `loader()`:
 
@@ -934,6 +1807,22 @@ Let's add very simple yet nice `loader()`:
     </svg>
   );
 ```
+
+In addition, let's add welcome message when the user first time visit the page:
+
+```typescript
+  useEffect(() => {
+    defineTheme("active4d").then((_) =>
+      setTheme({ value: "active4d", label: "Active4D" })
+    );
+    showSuccessToast("Welcome to Code Editor!");
+  }, []);
+```
+
+Example:
+
+![Greetings](public/app/notification_card.png)
+
 
 Next step let's quickly set up environment variables and test it locally.
 
@@ -963,9 +1852,25 @@ npm run dev
 Open http://localhost:3000 in your browser to see the application running.
 
 You should see something similar to this:
-![Main Page](public/main_page.png)
 
-<add something>
+![Main Page](public/app/main_page.png)
+
+Here on the bottom left side you can see your profile account:
+
+![Profile Account](public/ui_1.png)
+
+Feel free to solve the first problem and run the code:
+
+![First Problem](public/ui_2.png)
+
+Here's how real interview looks like:
+
+![Interview](public/ui_3.png)
+
+Watch the interview in action:
+
+[![Watch on YouTube](https://img.shields.io/badge/Watch%20on-YouTube-red?style=for-the-badge&logo=youtube)](https://youtu.be/wyp8tRTLLfQ?si=3-oRfxNs5J5BZMoy)
+
 
 If you want to learn more about Building AI powered projects or whatever. Let me know. It's FREE! 🎉 -> [Learn now!](https://topmate.io/join/abdibrokhim)
 
@@ -975,17 +1880,78 @@ So, that's it! But, we are not done yet. We need to deploy our application to Ve
 
 To deploy the application to Vercel, you need to create a Vercel account. Please follow this tutorial to deploy your Next.js application to Vercel: [How to Deploy Apps to Vercel with ease](https://medium.com/@abdibrokhim/how-to-deploy-apps-to-vercel-with-ease-93fa0d0bb687).
 
-Once you have deployed the application, you can try it out and share it with your friends.
+Once you have deployed the application, you can try it out and share it with your peers. 
 
+> ps; as i did here with my close friend:
+
+[![Watch on YouTube](https://img.shields.io/badge/Watch%20on-YouTube-red?style=for-the-badge&logo=youtube)](https://youtu.be/wyp8tRTLLfQ?si=3-oRfxNs5J5BZMoy)
+
+> pss; you can also watch the **Uncensored** 😂 version on Patreon here [[Uncensored]: PrepAlly, an Open Source and AI-powered Interview Preparation Platform.](https://www.patreon.com/posts/uncensored-open-116136938?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)
+
+
+### Hype it up!
+
+Let's gooo! 🦄
+
+#### ProductHunt
+
+Ok, firstly we should create an account on ProductHunt here [Create an account](https://www.producthunt.com/). 
+
+![ProductHunt](public/ph/ph_dash.png)
+
+Then, we can submit our project there. 
+
+Click on the `Submit` button on the top right corner. Paste the URL of the project and click on `Submit`. Next it will ask you to fill the details about the project. Take your time and fill the details.
+
+![ProductHunt](public/ph/details.png)
+
+More details: 😅
+
+![ProductHunt](public/ph/more_details.png)
+
+Then, click `Schedule for Later` button and select the date and time you want to launch the project.
+
+Finally, click on `Schedule` button. That's it! 🎉
+
+![ProductHunt](public/ph/done.png)
+
+Here's the link to the project: [PrepAlly on ProductHunt](https://www.producthunt.com/posts/prepally). How about yours? Let me know in the comments below.
+
+#### X (formerly Twitter)
+
+The very effective way to promote your project is to share it on X. Just drop some postshit and voila! 🦄
+
+For example, look at this description:
+
+```bash
+Introducing PrepAlly, an Open Source and AI-powered Interview Preparation Platform.
+
+- Select the problem from the list.
+- Choose your programming language.
+- Write the code and run it instantly.
+- Talk to AI and get feedback on your code.
+- Feel like you are in a real interview.
+```
+
+Also, upload the video of the demo directly. (ps; don't put link to YouTube, instead upload the video directly)
+
+![Twitter](public/x/x_post.png)
+
+Here's the link to the post: [PrepAlly on X](https://x.com/abdibrokhim/status/1857897470577062165). How about yours? Let me know in the comments below.
 
 ## Conclusion
-will be added later...
+
+In this tutorial, we built an AI-powered coding interview platform using Next.js, React, Tailwind CSS, and AI/ML API. We integrated the platform with Clerk Auth for authentication and deployed it to Vercel. We also added features like voice input, chat logs, and execution logs to enhance the user experience.
+
+We also learned how to promote the project on ProductHunt and X to reach a wider audience. At least, we hyped it up! 🐐
+
+I hope you enjoyed building this project and learned something new. If you have any questions or feedback, feel free to leave a comment below. I would love to hear from you.
 
 ---
 
-All the code for this project is available on GitHub: [HumanAIze AI text tool](https://github.com/abdibrokhim/humanaize/).
+All the code for this project is available on GitHub: [PrepAlly; AI Coding Interviewer](https://github.com/abdibrokhim/ai-coding-interviewer). Open Source 🌟.
 
-Save this tutorial for later reference: [](). (it's always available on [Medium]()) and [Dev Community](https://dev.to/abdibrokhim/step-by-step-tutorial-on-building-an-ai-text-humanizer-with-aiml-api-and-integration-with-clerk-auth-and-deploying-to-vercel-moj) for FREE! 🎉
+Save this tutorial for later reference: [Let's build Startup. Step-by-Step Tutorial on Building AI Coding Interviewer (e.g., PrepAlly) with AI/ML API and Integration with Clerk Auth and Deploying to Vercel](https://dev.to/abdibrokhim/step-by-step-tutorial-on-building-ai-coding-interviewer-with-aiml-api-and-integration-with-clerk-2cd7). (it's always available on [Medium](https://medium.com/@abdibrokhim/lets-build-startup-2eb5ddfab4af)) and [Dev Community](https://dev.to/abdibrokhim/step-by-step-tutorial-on-building-ai-coding-interviewer-with-aiml-api-and-integration-with-clerk-2cd7) for FREE! 🎉
 
 ### Other interesting tutorials:
 *with step-by-step guide and screenshots:*
@@ -1001,21 +1967,21 @@ on Medium:
 
 on Dev Community:
 
-* [Comprehensive and Step-by-Step Tutorial on Building an AI text Humanizer with AI/ML API, Next.js, Tailwind CSS and Integration with Clerk Auth and Deploying to Vercel]()
+* [Comprehensive and Step-by-Step Tutorial on Building an AI text Humanizer with AI/ML API, Next.js, Tailwind CSS and Integration with Clerk Auth and Deploying to Vercel](https://dev.to/abdibrokhim/step-by-step-tutorial-on-building-an-ai-text-humanizer-with-aiml-api-and-integration-with-clerk-auth-and-deploying-to-vercel-moj)
 
 * [Building an AI Sticker Maker Platform with AI/ML API, Next.js, React, and Tailwind CSS using OpenAI GPT-4o and DALL-E 3 Models.](https://dev.to/abdibrokhim/building-an-ai-sticker-maker-platform-with-aiml-api-nextjs-react-and-tailwind-css-using-openai-gpt-4o-and-dalle-3-models-46ip)
 
 * [Building a Chrome Extension from Scratch with AI/ML API, Deepgram Aura, and IndexedDB Integration](https://dev.to/abdibrokhim/building-a-chrome-extension-from-scratch-with-aiml-api-deepgram-aura-and-indexeddb-integration-25hd)
 
 
-### Try live demo:
+### Try what you have built so far:
 * [HumanAIze AI text tool](https://humanaize.vercel.app/), it's absolutely FREE! 🎉 and The smartest AI humanizer.
 * [AI Sticker Maker Platform](https://ai-sticker-maker.vercel.app/) on [HuggingFace Spaces](https://huggingface.co/spaces/AI-ML-API-tutorials/ai-sticker-maker) 🚀. You can print them and make your life funnier.
 * [Chrome Extension](https://github.com/TechWithAbee/Building-a-Chrome-Extension-from-Scratch-with-AI-ML-API-Deepgram-Aura-and-IndexDB-Integration) to Read Aloud the text on the webpage.
 * Not a subscriber? Download Loom Videos for free using [lovido.lol](https://lovido.lol/). [Open Source](https://github.com/abdibrokhim/loom-dl-web/), put a star on it! ⭐️
 
 
-### my GPTs:
+### GPTs:
 * [StoryAI](https://chatgpt.com/g/g-PRa3ZXK36-story-ai), Where Climate Data Meets Conversation 🌍
 * [EcoShopAI](https://chatgpt.com/g/g-rTTibE8p9-ecoshop-ai), I help you to make eco-friendly purchasing decisions with minimal environmental impact
 [AI Sticker Maker](https://chatgpt.com/g/g-mtFtfproh-ai-sticker-maker), I will create really cutesy stickers for you 💜
@@ -1029,4 +1995,8 @@ on Dev Community:
 
 Tutorial was cooked by [Ibrohim Abdivokhidov](https://www.linkedin.com/in/abdibrokhim/), (follow this 🐐 on [LinkedIn](https://www.linkedin.com/in/abdibrokhim/)). Why, umm... why not tho?
 
-> ps: 1️⃣ AI/ML API Regional Ambassador in Central Asia | founder CEO at Open Community (150+ 🧑‍💻) | Hacker (60+ hackathons 🦄) | Open Source contributor at Anarchy Labs (477+ ⭐️), Langflow (31,2K+ ⭐️) | Mentor (200K+ 🧑‍🎓) | Author (5+ 📚)... umm and more stuff cookin' up -> [imcook.in](https://imcook.in) !
+> ps: *[Uncensored]*: Founders video; Y Combinator Winter 2025 batch [be a Patron](https://www.patreon.com/collection/861737)
+
+you need someone to guide you through the challenges? i’m here to help [Book a Call](https://topmate.io/abdibrokhim/1291447)
+
+> pss: 1️⃣ AI/ML API Regional Ambassador in Central Asia | founder CEO at Open Community (150+ 🧑‍💻) | Hacker (60+ hackathons 🦄) | Open Source contributor at Anarchy Labs (477+ ⭐️), Langflow (31,2K+ ⭐️) | Mentor (200K+ 🧑‍🎓) | Author (5+ 📚)... umm and more stuff cookin' up -> [imcook.in](https://imcook.in) !
