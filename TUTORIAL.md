@@ -9,6 +9,7 @@ Well, okey, but why? 🤔
 Current tools offer practice but fall short of providing the interactive, AI-driven insights candidates need to feel truly prepared. Interviews are still notoriously stressful, leaving candidates feeling unprepared despite available resources. PrepAlly changes that by delivering real-time feedback and personalized insights, empowering candidates with the confidence and readiness to ace their interviews.
 
 > you: it seems like at the end of the tutorial, we'll have a real startup, right? 🐐
+
 > me: exactly, let's cook something people want! 🦄
 
 To build the AI Coding Interviewer, we'll use the following technologies: *AI/ML API*, *React*, *Next.js*, *Tailwind CSS*, *Clerk Auth*, *Vercel*, and *Judge0* from RapidAPI. They all are nice to get started with MVP. 
@@ -108,7 +109,7 @@ Before we get started, make sure you have the following installed on your machin
 * [AI/ML API Key](https://aimlapi.com/?via=ibrohim). Here's a tutorial on [How to get API Key from AI/ML API](https://medium.com/@abdibrokhim/how-to-get-api-key-from-ai-ml-api-225a69d0bb25)
 * [Clerk Auth Account](https://clerk.com/). Here's a brief tutorial on: [How to create account on Clerk and setup new project](https://medium.com/@abdibrokhim/how-to-create-account-on-clerk-and-setup-a-new-project-532be3545642)
 * [Vercel Account](https://vercel.com/). Here's a brief tutorial on: [How to create account on Vercel](https://medium.com/@abdibrokhim/how-to-deploy-apps-to-vercel-with-ease-93fa0d0bb687)
-* **Judge0 API Key**; i will show you how to get it later.
+* [Judge0 API Key](https://rapidapi.com/judge0-official/api/judge0-ce); i will show you how to get it later. (upd: jump to [Judge0 from RapidAPI](#judge0-from-rapidapi))
 
 ## Getting Started
 
