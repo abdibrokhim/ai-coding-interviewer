@@ -34,7 +34,7 @@ With AI/ML API I can access to over 200 AI models with one API endpoint. It's su
 Clone the repository with:
 
 ```shell
-git clone https://github.com/abdibrokhim/code-ario-ai
+git clone https://github.com/abdibrokhim/ai-coding-interviewer
 ```
 
 Install the dependencies with:
@@ -60,10 +60,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_ELEVENLABS_API_KEY=sk_...
 NEXT_PUBLIC_AIML_API_KEY=...
-NEXT_PUBLIC_ARIA_API_KEY=...
-NEXT_PUBLIC_OPENAI_API_KEY=sk-...
 ```
 
 Check out the following tutorials to get started:
@@ -101,11 +98,11 @@ Or just create an issue over here.
 
 ## 👋 Want to Contribute?
 
-Kindly check the [CONTRIBUTING.md](https://github.com/abdibrokhim/code-ario-ai/blob/main/CONTRIBUTING.md)
+Kindly check the [CONTRIBUTING.md](https://github.com/abdibrokhim/ai-coding-interviewer/blob/main/CONTRIBUTING.md)
 
 ## ⭐️ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=abdibrokhim/code-ario-ai&type=Date)](https://star-history.com/#abdibrokhim/code-ario-ai&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=abdibrokhim/ai-coding-interviewer&type=Date)](https://star-history.com/#abdibrokhim/ai-coding-interviewer&Date)
 
 ## 🙏 Support
 If you wish to support further development and feel extra awesome, you can [Donate](https://buymeacoffee.com/abdibrokhim/), become a [Patron](https://www.patreon.com/abdibrokhim) or [Follow on LinkedIn](https://www.linkedin.com/in/abdibrokhim/).
