@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "AI Coding Interview",
-  description: "AI Coding Interview",
+  description: "AI Coding Interview is a platform that delivers real-time feedback and personalized insights, empowering candidates with the confidence and readiness to ace their interviews.",
 };
 
 export default function RootLayout({
