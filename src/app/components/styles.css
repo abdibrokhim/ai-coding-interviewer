@@ -1,0 +1,19 @@
+.noselect {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+    user-select: none;         /* Non-prefixed version, currently supported by Chrome, Opera, and others */
+}
+.nodrag {
+    pointer-events: none;      /* Prevents mouse events on the image */
+}
+/* styles.css */
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .animate-spin-slow {
+    animation: spinSlow 10s linear infinite;
+  }
+  
