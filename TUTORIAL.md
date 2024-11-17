@@ -1,5 +1,49 @@
 # Let's build Startup. Step-by-Step Tutorial on Building AI Coding Interviewer (e.g., PrepAlly) with AI/ML API and Integration with Clerk Auth and Deploying to Vercel
 
+<details>
+<summary>⬇️ Table of Contents ⬇️</summary>
+
+- [Introduction](#introduction)
+  - [AI/ML API](#aiml-api)
+  - [Judge0 from RapidAPI](#judge0-from-rapidapi)
+  - [Next.js](#nextjs)
+  - [Tailwind CSS](#tailwind-css)
+  - [Clerk Auth](#clerk-auth)
+  - [Vercel](#vercel)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Create a New Next.js Project](#create-a-new-nextjs-project)
+  - [API Routes](#api-routes)
+  - [Clerk Auth](#clerk-auth)
+  - [PrepAlly Interface](#prepally-interface)
+    - [Code Editor](#code-editor)
+    - [Language Selector](#language-selector)
+    - [Coding Problems List](#coding-problems-list)
+    - [Code Execution Button and Log](#code-execution-button-and-log)
+    - [FontAwesome Icons](#fontawesome-icons)
+    - [Assembling the PrepAlly Interface](#assembling-the-prepally-interface)
+    - [Notifications](#notifications)
+    - [Code Compilation](#code-compilation)
+    - [Execution and Chat Logs](#execution-and-chat-logs)
+    - [Speech Recognition](#speech-recognition)
+    - [API Integration](#api-integration)
+    - [Prompt Engineering](#prompt-engineering)
+  - [Code Compilation](#code-compilation)
+  - [Environment Variables](#environment-variables)
+  - [Run Locally](#run-locally)
+  - [Deploying to Vercel](#deploy-to-vercel)
+- [Hype it up!](#hype-it-up)
+  - [ProductHunt](#producthunt)
+  - [X](#x)
+- [Conclusion](#conclusion)
+  - [Other interesting tutorials](#other-interesting-tutorials)
+  - [Try what you have built so far](#try-what-you-have-built-so-far)
+  - [Helpful GPTs](#helpful-gpts)
+- [Bonus](#bonus-🦄) 🦄
+
+</details>
+
+
 ## Introduction
 
 In this tutorial we'll build a web application called AI Coding Interviewer (e.g., **`PrepAlly`**) that helps candidates prepare for coding interviews.
@@ -1316,7 +1360,7 @@ Define the `getInterviewState` function to display the current state of the inte
   };
 ```
 
-#### Execution Log
+#### Execution and Chat Logs
 
 Make execution log window resizable:
 
@@ -1454,6 +1498,7 @@ Chat logs:
 
 ![Chat logs](public/app/chat_logs.png)
 
+#### Speech Recognition
 
 Then, bunch of `functions`, **functions**, *functions*...
 
@@ -1574,6 +1619,8 @@ declare global {
 }
 ```
 
+#### API Integration
+
 Tha main part of the code is the `handleAIResponse` function. This function will handle the response from the AI model. It will prepare the chat messages, send the user query to the GPT-4o model, and convert the AI reply to speech. It's kinds wrapper function for the AI model.
 
 ```typescript
@@ -1685,6 +1732,8 @@ The `textToSpeech` function will convert the AI reply to speech and play it.
     }
   };
 ```
+
+#### Prompt Engineering
 
 Above if you were pretty much following along, you should see `prepareChatMessages` function. It's a helper function to prepare chat messages for the GPT-4o model. It will format the chat messages in a way that we can send them to the model for processing.
 
@@ -1930,7 +1979,7 @@ Finally, click on `Schedule` button. That's it! 🎉
 
 Here's the link to the project: [PrepAlly on ProductHunt](https://www.producthunt.com/posts/prepally). How about yours? Let me know in the comments below or [message me topmate.io/abdibrokhim](https://topmate.io/abdibrokhim/1291434/pay). Really, I would love to see your project. 🐐
 
-#### X (formerly Twitter)
+#### X
 
 The very effective way to promote your project is to share it on X. Just drop some postshit and voila! 🦄
 
@@ -1989,17 +2038,26 @@ on Dev Community:
 * [Building a Chrome Extension from Scratch with AI/ML API, Deepgram Aura, and IndexedDB Integration](https://dev.to/abdibrokhim/building-a-chrome-extension-from-scratch-with-aiml-api-deepgram-aura-and-indexeddb-integration-25hd)
 
 
-### Try what you have built so far (if you followed along 😂):
+### Try what you have built so far:
+
+> (if you followed along 😂)
+
 * [HumanAIze AI text tool](https://humanaize.vercel.app/), it's absolutely FREE! 🎉 and The smartest AI humanizer.
 * [AI Sticker Maker Platform](https://ai-sticker-maker.vercel.app/) on [HuggingFace Spaces](https://huggingface.co/spaces/AI-ML-API-tutorials/ai-sticker-maker) 🚀. You can print them and make your life funnier.
 * [Chrome Extension](https://github.com/TechWithAbee/Building-a-Chrome-Extension-from-Scratch-with-AI-ML-API-Deepgram-Aura-and-IndexDB-Integration) to Read Aloud the text on the webpage.
 * Not a subscriber? Download Loom Videos for free using [lovido.lol](https://lovido.lol/). [Open Source](https://github.com/abdibrokhim/loom-dl-web/), put a star on it! ⭐️
 
 
-### GPTs (i did during the hackathons):
+### Helpful GPTs:
+
+> (i did during the hackathons) 🙈
+
 * [StoryAI](https://chatgpt.com/g/g-PRa3ZXK36-story-ai), Where Climate Data Meets Conversation 🌍
 * [EcoShopAI](https://chatgpt.com/g/g-rTTibE8p9-ecoshop-ai), I help you to make eco-friendly purchasing decisions with minimal environmental impact
 * [AI Sticker Maker](https://chatgpt.com/g/g-mtFtfproh-ai-sticker-maker), I will create really cutesy stickers for you 💜
+
+
+## Bonus 🦄
 
 ---
 
@@ -2014,4 +2072,4 @@ Tutorial was cooked by [Ibrohim Abdivokhidov](https://www.linkedin.com/in/abdibr
 
 you need someone to guide you through the challenges? i’m here to help [Book a Call](https://topmate.io/abdibrokhim/1291447)
 
-> pss: 1️⃣ AI/ML API Regional Ambassador in Central Asia | founder CEO at Open Community (150+ 🧑‍💻) | Hacker (60+ hackathons 🦄) | Open Source contributor at Anarchy Labs (477+ ⭐️), Langflow (31,2K+ ⭐️) | Mentor (200K+ 🧑‍🎓) | Author (5+ 📚)... umm and more stuff cookin' up -> [imcook.in](https://imcook.in) !
+> pss: 1️⃣ AI/ML API Regional Ambassador in Central Asia | founder CEO at Open Community (150+ 🧑‍💻) | Hacker (60+ hackathons 🦄) | Open Source contributor at Anarchy Labs (477+ ⭐️), Langflow (31,2K+ ⭐️) | Mentor (200K+ 🧑‍🎓) | Author (5+ 📚)... umm and more stuff cookin' up -> check here to know what [imcook.in](https://imcook.in) !
