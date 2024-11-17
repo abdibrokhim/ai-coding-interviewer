@@ -39,7 +39,7 @@
   - [Other interesting tutorials](#other-interesting-tutorials)
   - [Try what you have built so far](#try-what-you-have-built-so-far)
   - [Helpful GPTs](#helpful-gpts)
-- [Bonus](#bonus-🦄) 🦄
+- [Bonus](#bonus) 🦄
 
 </details>
 
@@ -2057,7 +2057,7 @@ on Dev Community:
 * [AI Sticker Maker](https://chatgpt.com/g/g-mtFtfproh-ai-sticker-maker), I will create really cutesy stickers for you 💜
 
 
-## Bonus 🦄
+## Bonus
 
 ---
 
